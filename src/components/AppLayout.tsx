@@ -5,10 +5,9 @@ import ScheduleSection from "@/components/sections/ScheduleSection";
 import ChatSection from "@/components/sections/ChatSection";
 import HomeworkSection from "@/components/sections/HomeworkSection";
 import MaterialsSection from "@/components/sections/MaterialsSection";
-import AttendanceSection from "@/components/sections/AttendanceSection";
 import UsersSection from "@/components/sections/UsersSection";
 
-export type SectionId = "schedule" | "chat" | "homework" | "materials" | "attendance" | "users";
+export type SectionId = "schedule" | "chat" | "homework" | "materials" | "users";
 
 const ROLE_LABELS: Record<UserRole, string> = {
   student: "Ученик",
@@ -34,7 +33,6 @@ const NAV_ITEMS: NavItem[] = [
   { id: "chat", label: "Чат", icon: "MessageSquare", roles: ["student", "teacher", "admin"] },
   { id: "homework", label: "Задания", icon: "BookOpen", roles: ["student", "teacher", "admin"] },
   { id: "materials", label: "Материалы", icon: "FolderOpen", roles: ["student", "teacher", "admin"] },
-  { id: "attendance", label: "Табель", icon: "ClipboardList", roles: ["student", "teacher", "admin"] },
   { id: "users", label: "Пользователи", icon: "Users", roles: ["admin"] },
 ];
 
@@ -55,7 +53,6 @@ export default function AppLayout({ user, onLogout }: Props) {
       case "chat": return <ChatSection user={user} />;
       case "homework": return <HomeworkSection user={user} />;
       case "materials": return <MaterialsSection user={user} />;
-      case "attendance": return <AttendanceSection user={user} />;
       case "users": return <UsersSection user={user} />;
     }
   };
