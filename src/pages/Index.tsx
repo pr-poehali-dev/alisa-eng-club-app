@@ -1,17 +1,32 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import LoginScreen from "@/components/LoginScreen";
+import AppLayout from "@/components/AppLayout";
 
-const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4 color-black text-black">Добро пожаловать!</h1>
-        <p className="text-xl text-gray-600">тут будет отображаться ваш проект</p>
-      </div>
-      <span className="absolute bottom-8 left-1/2 -translate-x-1/2 inline-block bg-[#FF6637] text-white text-sm px-4 py-2 rounded-full whitespace-nowrap">
-        Подождите 5 минут, Юра создает первую версию проекта с нуля
-      </span>
-    </div>
-  );
-};
+export type UserRole = "student" | "teacher" | "admin";
 
-export default Index;
+export interface User {
+  id: string;
+  name: string;
+  role: UserRole;
+  teacherId?: string;
+}
+
+export const DEMO_USERS: User[] = [
+  { id: "s1", name: "Алиса Морозова", role: "student", teacherId: "t1" },
+  { id: "s2", name: "Ольга Петрова", role: "student", teacherId: "t1" },
+  { id: "s3", name: "Михаил Соколов", role: "student", teacherId: "t2" },
+  { id: "s4", name: "Егор Лебедев", role: "student", teacherId: "t2" },
+  { id: "t1", name: "Анна Ковалёва", role: "teacher" },
+  { id: "t2", name: "Дмитрий Волков", role: "teacher" },
+  { id: "a1", name: "Елена Смирнова", role: "admin" },
+];
+
+export default function Index() {
+  const [user, setUser] = useState<User | null>(null);
+
+  if (!user) {
+    return <LoginScreen users={DEMO_USERS} onLogin={setUser} />;
+  }
+
+  return <AppLayout user={user} onLogout={() => setUser(null)} />;
+}
