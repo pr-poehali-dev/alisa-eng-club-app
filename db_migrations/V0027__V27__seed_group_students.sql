@@ -1,0 +1,15 @@
+INSERT INTO t_p95371417_alisa_eng_club_app.users (name, role, email, password_hash) VALUES
+  ('Тимур',   'student', 'timur@alisaeng.ru',   '$2b$12$KIXSGMCmekpFnULqTmYoaODYGALRRnFIx9g3P.YN7a3nY1OI8IVGm'),
+  ('Кирилл',  'student', 'kirill@alisaeng.ru',  '$2b$12$KIXSGMCmekpFnULqTmYoaODYGALRRnFIx9g3P.YN7a3nY1OI8IVGm'),
+  ('Аня Б',   'student', 'anya-b@alisaeng.ru',  '$2b$12$KIXSGMCmekpFnULqTmYoaODYGALRRnFIx9g3P.YN7a3nY1OI8IVGm'),
+  ('Настя',   'student', 'nastya@alisaeng.ru',  '$2b$12$KIXSGMCmekpFnULqTmYoaODYGALRRnFIx9g3P.YN7a3nY1OI8IVGm'),
+  ('Миша А2', 'student', 'misha-a2@alisaeng.ru','$2b$12$KIXSGMCmekpFnULqTmYoaODYGALRRnFIx9g3P.YN7a3nY1OI8IVGm'),
+  ('Елисей',  'student', 'elisey@alisaeng.ru',  '$2b$12$KIXSGMCmekpFnULqTmYoaODYGALRRnFIx9g3P.YN7a3nY1OI8IVGm'),
+  ('Сева',    'student', 'seva@alisaeng.ru',    '$2b$12$KIXSGMCmekpFnULqTmYoaODYGALRRnFIx9g3P.YN7a3nY1OI8IVGm'),
+  ('Марина',  'student', 'marina@alisaeng.ru',  '$2b$12$KIXSGMCmekpFnULqTmYoaODYGALRRnFIx9g3P.YN7a3nY1OI8IVGm'),
+  ('Оля',     'student', 'olya@alisaeng.ru',    '$2b$12$KIXSGMCmekpFnULqTmYoaODYGALRRnFIx9g3P.YN7a3nY1OI8IVGm'),
+  ('Миша О2', 'student', 'misha-o2@alisaeng.ru','$2b$12$KIXSGMCmekpFnULqTmYoaODYGALRRnFIx9g3P.YN7a3nY1OI8IVGm'),
+  ('Максим',  'student', 'maksim@alisaeng.ru',  '$2b$12$KIXSGMCmekpFnULqTmYoaODYGALRRnFIx9g3P.YN7a3nY1OI8IVGm'),
+  ('Ваня А3', 'student', 'vanya-a3@alisaeng.ru','$2b$12$KIXSGMCmekpFnULqTmYoaODYGALRRnFIx9g3P.YN7a3nY1OI8IVGm'),
+  ('Ульяна',  'student', 'ulyana@alisaeng.ru',  '$2b$12$KIXSGMCmekpFnULqTmYoaODYGALRRnFIx9g3P.YN7a3nY1OI8IVGm'),
+  ('Арсений', 'student', 'arseniy@alisaeng.ru', '$2b$12$KIXSGMCmekpFnULqTmYoaODYGALRRnFIx9g3P.YN7a3nY1OI8IVGm')
