@@ -34,7 +34,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: "chat", label: "Чат", icon: "MessageSquare", roles: ["student", "teacher", "admin"] },
   { id: "homework", label: "Задания", icon: "BookOpen", roles: ["student", "teacher", "admin"] },
   { id: "materials", label: "Материалы", icon: "FolderOpen", roles: ["student", "teacher", "admin"] },
-  { id: "groups", label: "Группы", icon: "UsersRound", roles: ["admin"] },
+  { id: "groups", label: "Группы", icon: "UsersRound", roles: ["admin", "teacher"] },
   { id: "users", label: "Пользователи", icon: "UserCog", roles: ["admin"] },
 ];
 

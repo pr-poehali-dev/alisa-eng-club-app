@@ -157,13 +157,22 @@ def handler(event: dict, context) -> dict:
 
         if action == "update":
             group_id = int(body.get("group_id") or 0)
+            caller_id = int(body.get("caller_id") or 0)
+            caller_role = (body.get("caller_role") or "").strip()
             if not group_id:
                 return err("group_id обязателен")
+            # Преподаватель может менять только имя своих групп
+            if caller_role == "teacher" and caller_id:
+                cur.execute(f"SELECT teacher_id FROM {SCHEMA}.groups WHERE id = {group_id}")
+                row = cur.fetchone()
+                if not row or row[0] != caller_id:
+                    return err("Нет доступа к этой группе", 403)
             sets = []
             if body.get("name"):
                 safe_name = str(body["name"]).strip().replace("'", "''")
                 sets.append(f"name = '{safe_name}'")
-            if body.get("teacher_id"):
+            # Смена преподавателя — только для admin
+            if body.get("teacher_id") and caller_role == "admin":
                 sets.append(f"teacher_id = {int(body['teacher_id'])}")
             if not sets:
                 return err("Нечего обновлять")

@@ -46,9 +46,14 @@ export default function GroupsSection({ user }: { user: User }) {
   const [addStudentGroupId, setAddStudentGroupId] = useState<number | null>(null);
   const [addStudentId, setAddStudentId] = useState<number | "">("");
 
+  const isAdmin = user.role === "admin";
+
   useEffect(() => {
+    const groupsReq = isAdmin
+      ? api("list")
+      : api("my_groups", { user_id: Number(user.id), role: "teacher" });
     Promise.all([
-      api("list"),
+      groupsReq,
       api("users", { role: "teacher" }),
       api("users", { role: "student" }),
     ]).then(([g, t, s]) => {
@@ -57,10 +62,13 @@ export default function GroupsSection({ user }: { user: User }) {
       setStudents(s.users ?? []);
       setLoading(false);
     });
-  }, []);
+  }, [user.id, user.role, isAdmin]);
 
-  const reload = () =>
-    api("list").then((g) => setGroups(g.groups ?? []));
+  const reload = () => {
+    const action = user.role === "teacher" ? "my_groups" : "list";
+    const payload = user.role === "teacher" ? { user_id: Number(user.id), role: "teacher" } : {};
+    api(action, payload).then((g) => setGroups(g.groups ?? []));
+  };
 
   const handleCreate = async () => {
     if (!createName.trim() || !createTeacherId) return;
@@ -78,8 +86,10 @@ export default function GroupsSection({ user }: { user: User }) {
     setSaving(true);
     await api("update", {
       group_id: groupId,
+      caller_id: Number(user.id),
+      caller_role: user.role,
       ...(editName.trim() ? { name: editName.trim() } : {}),
-      ...(editTeacherId ? { teacher_id: editTeacherId } : {}),
+      ...(editTeacherId && user.role === "admin" ? { teacher_id: editTeacherId } : {}),
     });
     await reload();
     setEditId(null);
@@ -120,13 +130,15 @@ export default function GroupsSection({ user }: { user: User }) {
           <h2 className="text-xl font-bold text-foreground">Группы</h2>
           <p className="text-muted-foreground text-sm mt-0.5">{groups.length} групп · преподаватели и ученики</p>
         </div>
-        <button
-          onClick={() => { setShowCreate(!showCreate); setEditId(null); }}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90"
-        >
-          <Icon name="Plus" size={15} />
-          Создать группу
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => { setShowCreate(!showCreate); setEditId(null); }}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90"
+          >
+            <Icon name="Plus" size={15} />
+            Создать группу
+          </button>
+        )}
       </div>
 
       {/* Create form */}
@@ -214,13 +226,15 @@ export default function GroupsSection({ user }: { user: User }) {
                     >
                       <Icon name="Pencil" size={14} />
                     </button>
-                    <button
-                      onClick={() => handleDeleteGroup(group.id)}
-                      title="Удалить группу"
-                      className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-lg hover:bg-destructive/5"
-                    >
-                      <Icon name="Trash2" size={14} />
-                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleDeleteGroup(group.id)}
+                        title="Удалить группу"
+                        className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-lg hover:bg-destructive/5"
+                      >
+                        <Icon name="Trash2" size={14} />
+                      </button>
+                    )}
                     <button
                       onClick={() => setExpandedId(isExpanded ? null : group.id)}
                       className="p-1.5 text-muted-foreground hover:text-foreground transition-colors"
@@ -243,16 +257,18 @@ export default function GroupsSection({ user }: { user: User }) {
                           className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground"
                         />
                       </div>
-                      <div>
-                        <label className="text-xs text-muted-foreground block mb-1">Преподаватель</label>
-                        <select
-                          value={editTeacherId}
-                          onChange={(e) => setEditTeacherId(+e.target.value || "")}
-                          className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground"
-                        >
-                          {teachers.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-                        </select>
-                      </div>
+                      {isAdmin && (
+                        <div>
+                          <label className="text-xs text-muted-foreground block mb-1">Преподаватель</label>
+                          <select
+                            value={editTeacherId}
+                            onChange={(e) => setEditTeacherId(+e.target.value || "")}
+                            className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground"
+                          >
+                            {teachers.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                          </select>
+                        </div>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       <button onClick={() => setEditId(null)} className="px-3 py-1.5 rounded-lg text-xs border border-border text-muted-foreground">Отмена</button>
