@@ -32,7 +32,7 @@ export default function LoginScreen({ onLogin }: Props) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{background: "radial-gradient(ellipse at 60% 0%, hsl(15,55%,92%) 0%, hsl(30,30%,97%) 60%)"}}>
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-sm animate-fade-in">
 
         {/* Header */}
