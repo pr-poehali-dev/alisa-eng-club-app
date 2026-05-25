@@ -4,44 +4,48 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 215 25% 18%;
+    /* Основной фон — тёплый кремовый */
+    --background: 30 30% 97%;
+    --foreground: 345 20% 18%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 18%;
+    --card-foreground: 345 20% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 18%;
+    --popover-foreground: 345 20% 18%;
 
-    --primary: 210 70% 45%;
+    /* Primary — красно-розовый из логотипа */
+    --primary: 349 50% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 20% 94%;
-    --secondary-foreground: 215 25% 28%;
+    --secondary: 15 40% 93%;
+    --secondary-foreground: 345 20% 28%;
 
-    --muted: 210 15% 95%;
-    --muted-foreground: 215 15% 52%;
+    --muted: 20 25% 94%;
+    --muted-foreground: 345 12% 50%;
 
-    --accent: 210 60% 92%;
-    --accent-foreground: 210 70% 35%;
+    /* Accent — персиковый */
+    --accent: 15 55% 90%;
+    --accent-foreground: 349 50% 42%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 20% 88%;
-    --input: 210 20% 88%;
-    --ring: 210 70% 45%;
+    --border: 20 20% 88%;
+    --input: 20 20% 88%;
+    --ring: 349 50% 55%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 215 30% 16%;
-    --sidebar-foreground: 210 20% 85%;
-    --sidebar-primary: 210 70% 55%;
+    /* Sidebar — тёмный с тёплым оттенком */
+    --sidebar-background: 345 25% 20%;
+    --sidebar-foreground: 15 30% 88%;
+    --sidebar-primary: 349 60% 72%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 25% 22%;
-    --sidebar-accent-foreground: 210 20% 92%;
-    --sidebar-border: 215 20% 22%;
-    --sidebar-ring: 210 70% 55%;
+    --sidebar-accent: 345 20% 27%;
+    --sidebar-accent-foreground: 15 30% 95%;
+    --sidebar-border: 345 18% 27%;
+    --sidebar-ring: 349 60% 72%;
   }
 }
 

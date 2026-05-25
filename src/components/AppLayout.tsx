@@ -80,14 +80,12 @@ export default function AppLayout({ user, onLogout }: Props) {
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-[hsl(var(--sidebar-border))]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-lg">🎓</div>
-            <div>
-              <div className="text-[hsl(var(--sidebar-foreground))] font-bold text-sm leading-tight">Alisa Eng Club</div>
-              <div className="text-[hsl(var(--sidebar-foreground))/50] text-xs opacity-60">Учебная платформа</div>
-            </div>
-          </div>
+        <div className="px-4 py-4 border-b border-[hsl(var(--sidebar-border))]">
+          <img
+            src="https://cdn.poehali.dev/projects/d0572299-fe7a-4456-96eb-3a198585116b/bucket/63e32b5a-6dc4-4ba1-b8a3-1c4b06994aa5.jpg"
+            alt="Alisa Eng Club"
+            className="w-full h-16 object-contain object-left"
+          />
         </div>
 
         {/* Nav */}

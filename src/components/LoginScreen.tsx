@@ -32,16 +32,17 @@ export default function LoginScreen({ onLogin }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{background: "radial-gradient(ellipse at 60% 0%, hsl(15,55%,92%) 0%, hsl(30,30%,97%) 60%)"}}>
       <div className="w-full max-w-sm animate-fade-in">
 
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
-            <span className="text-3xl">🎓</span>
-          </div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Alisa Eng Club</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Войдите в свой аккаунт</p>
+          <img
+            src="https://cdn.poehali.dev/projects/d0572299-fe7a-4456-96eb-3a198585116b/bucket/63e32b5a-6dc4-4ba1-b8a3-1c4b06994aa5.jpg"
+            alt="Alisa Eng Club"
+            className="w-48 h-32 object-contain mx-auto mb-2"
+          />
+          <p className="text-muted-foreground text-sm">Войдите в свой аккаунт</p>
         </div>
 
         {/* Form */}
