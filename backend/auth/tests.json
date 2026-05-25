@@ -1,0 +1,31 @@
+{
+  "tests": [
+    {
+      "name": "me без токена — 401",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "me"},
+      "expectedStatus": 401,
+      "bodyMatcher": "partial",
+      "expectedBody": {"error": "string"}
+    },
+    {
+      "name": "login неверный пароль — 401",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "login", "email": "anna@alisaeng.ru", "password": "wrongpass"},
+      "expectedStatus": 401,
+      "bodyMatcher": "partial",
+      "expectedBody": {"error": "string"}
+    },
+    {
+      "name": "login верные данные — 200",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "login", "email": "anna@alisaeng.ru", "password": "alisa123"},
+      "expectedStatus": 200,
+      "bodyMatcher": "partial",
+      "expectedBody": {"token": "string", "user": {"email": "string"}}
+    }
+  ]
+}

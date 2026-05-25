@@ -1,0 +1,3 @@
+ALTER TABLE t_p95371417_alisa_eng_club_app.users
+  ADD COLUMN IF NOT EXISTS email TEXT UNIQUE,
+  ADD COLUMN IF NOT EXISTS password_hash TEXT

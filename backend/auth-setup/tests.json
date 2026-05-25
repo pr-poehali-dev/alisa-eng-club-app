@@ -1,0 +1,13 @@
+{
+  "tests": [
+    {
+      "name": "set_all_passwords — 200",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "set_all_passwords", "password": "alisa123"},
+      "expectedStatus": 200,
+      "bodyMatcher": "partial",
+      "expectedBody": {"ok": true}
+    }
+  ]
+}

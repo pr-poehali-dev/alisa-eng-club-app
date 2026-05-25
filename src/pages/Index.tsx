@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LoginScreen from "@/components/LoginScreen";
 import AppLayout from "@/components/AppLayout";
 
@@ -8,25 +8,62 @@ export interface User {
   id: string;
   name: string;
   role: UserRole;
-  teacherId?: string;
+  teacher_id?: string | null;
+  email?: string;
 }
 
-export const DEMO_USERS: User[] = [
-  { id: "s1", name: "Алиса Морозова", role: "student", teacherId: "t1" },
-  { id: "s2", name: "Ольга Петрова", role: "student", teacherId: "t1" },
-  { id: "s3", name: "Михаил Соколов", role: "student", teacherId: "t2" },
-  { id: "s4", name: "Егор Лебедев", role: "student", teacherId: "t2" },
-  { id: "t1", name: "Анна Ковалёва", role: "teacher" },
-  { id: "t2", name: "Дмитрий Волков", role: "teacher" },
-  { id: "a1", name: "Елена Смирнова", role: "admin" },
-];
+// Временный экспорт для совместимости с разделами (будет убран при подключении БД)
+export const DEMO_USERS: User[] = [];
+
+const AUTH_URL = "https://functions.poehali.dev/805b4ec7-7283-4893-8f20-77c78c98a309";
+const SESSION_KEY = "alisa_eng_session";
+
+export async function apiAuth(action: string, payload?: object) {
+  const token = localStorage.getItem(SESSION_KEY) || "";
+  const res = await fetch(AUTH_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Session-Id": token },
+    body: JSON.stringify({ action, ...payload }),
+  });
+  return res.json();
+}
 
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!user) {
-    return <LoginScreen users={DEMO_USERS} onLogin={setUser} />;
+  // При загрузке проверяем сохранённую сессию
+  useEffect(() => {
+    const token = localStorage.getItem(SESSION_KEY);
+    if (!token) { setLoading(false); return; }
+    apiAuth("me").then((data) => {
+      if (data.user) setUser({ ...data.user, id: String(data.user.id) });
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
+
+  const handleLogin = (userData: User, token: string) => {
+    localStorage.setItem(SESSION_KEY, token);
+    setUser(userData);
+  };
+
+  const handleLogout = () => {
+    apiAuth("logout");
+    localStorage.removeItem(SESSION_KEY);
+    setUser(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   }
 
-  return <AppLayout user={user} onLogout={() => setUser(null)} />;
+  if (!user) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
+
+  return <AppLayout user={user} onLogout={handleLogout} />;
 }
