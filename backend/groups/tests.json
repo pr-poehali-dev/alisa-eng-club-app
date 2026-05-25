@@ -1,0 +1,31 @@
+{
+  "tests": [
+    {
+      "name": "list groups",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "list"},
+      "expectedStatus": 200,
+      "bodyMatcher": "partial",
+      "expectedBody": {"groups": "array"}
+    },
+    {
+      "name": "users — teachers",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "users", "role": "teacher"},
+      "expectedStatus": 200,
+      "bodyMatcher": "partial",
+      "expectedBody": {"users": "array"}
+    },
+    {
+      "name": "my_groups — admin",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "my_groups", "user_id": 3, "role": "admin"},
+      "expectedStatus": 200,
+      "bodyMatcher": "partial",
+      "expectedBody": {"groups": "array"}
+    }
+  ]
+}

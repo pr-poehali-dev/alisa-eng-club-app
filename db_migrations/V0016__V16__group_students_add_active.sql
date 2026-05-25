@@ -1,0 +1,2 @@
+ALTER TABLE t_p95371417_alisa_eng_club_app.group_students
+  ADD COLUMN IF NOT EXISTS active BOOLEAN NOT NULL DEFAULT TRUE
