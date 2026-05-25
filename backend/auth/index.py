@@ -1,8 +1,11 @@
 """
-Авторизация пользователей Alisa Eng Club.
-action=login  — вход по email+пароль
-action=logout — выход
-action=me     — получить текущего пользователя по токену из X-Session-Id заголовка
+Авторизация и управление пользователями Alisa Eng Club.
+action=login        — вход по email+пароль
+action=logout       — выход
+action=me           — получить текущего пользователя по X-Session-Id
+action=list_users   — список всех пользователей (только admin)
+action=create_user  — создать пользователя {name, email, password, role} (только admin)
+action=delete_user  — деактивировать пользователя {user_id} (только admin)
 """
 
 import json
@@ -19,7 +22,6 @@ CORS = {
     "Access-Control-Allow-Headers": "Content-Type, X-Session-Id",
 }
 
-# In-memory сессии: token -> user_id
 _sessions: dict[str, int] = {}
 
 
@@ -43,12 +45,19 @@ def err(msg: str, code: int = 400) -> dict:
     }
 
 
+def _get_session_user(event: dict) -> dict | None:
+    token = (event.get("headers") or {}).get("X-Session-Id", "")
+    if not token or token not in _sessions:
+        return None
+    return _get_user(_sessions[token])
+
+
 def handler(event: dict, context) -> dict:
     if event.get("httpMethod") == "OPTIONS":
         return {"statusCode": 200, "headers": CORS, "body": ""}
 
     body = json.loads(event.get("body") or "{}")
-    action = body.get("action") or event.get("queryStringParameters", {}).get("action", "me")
+    action = body.get("action") or (event.get("queryStringParameters") or {}).get("action", "me")
 
     # --- ME ---
     if action == "me":
@@ -83,6 +92,89 @@ def handler(event: dict, context) -> dict:
             del _sessions[token]
         return ok({"ok": True})
 
+    # --- LIST_USERS (только admin) ---
+    if action == "list_users":
+        caller = _get_session_user(event)
+        if not caller or caller["role"] != "admin":
+            return err("Доступ запрещён", 403)
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute(f"""
+                SELECT id, name, role, email, active
+                FROM {SCHEMA}.users
+                WHERE active = TRUE
+                ORDER BY role, name
+            """)
+            users = [
+                {"id": r[0], "name": r[1], "role": r[2], "email": r[3]}
+                for r in cur.fetchall()
+            ]
+            return ok({"users": users})
+        finally:
+            conn.close()
+
+    # --- CREATE_USER (только admin) ---
+    if action == "create_user":
+        caller = _get_session_user(event)
+        if not caller or caller["role"] != "admin":
+            return err("Доступ запрещён", 403)
+
+        name = (body.get("name") or "").strip()
+        email = (body.get("email") or "").strip().lower()
+        password = (body.get("password") or "").strip()
+        role = (body.get("role") or "student").strip()
+
+        if not name or not email or not password:
+            return err("Имя, email и пароль обязательны")
+        if role not in ("student", "teacher", "admin"):
+            return err("Неверная роль")
+
+        # Проверяем уникальность email
+        existing = _get_user_by_email(email)
+        if existing:
+            return err("Пользователь с таким email уже существует")
+
+        pw_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt(12)).decode()
+        safe_name = name.replace("'", "''")
+        safe_email = email.replace("'", "''")
+        safe_hash = pw_hash.replace("'", "''")
+
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute(f"""
+                INSERT INTO {SCHEMA}.users (name, role, email, password_hash)
+                VALUES ('{safe_name}', '{role}', '{safe_email}', '{safe_hash}')
+                RETURNING id, name, role, email
+            """)
+            row = cur.fetchone()
+            conn.commit()
+            return ok({"user": {"id": row[0], "name": row[1], "role": row[2], "email": row[3]}})
+        finally:
+            conn.close()
+
+    # --- DELETE_USER (только admin, мягкое удаление) ---
+    if action == "delete_user":
+        caller = _get_session_user(event)
+        if not caller or caller["role"] != "admin":
+            return err("Доступ запрещён", 403)
+
+        user_id = int(body.get("user_id") or 0)
+        if not user_id:
+            return err("user_id обязателен")
+        if user_id == caller["id"]:
+            return err("Нельзя удалить самого себя")
+
+        conn = get_db()
+        try:
+            cur = conn.cursor()
+            cur.execute(f"UPDATE {SCHEMA}.users SET active = FALSE WHERE id = {user_id}")
+            conn.commit()
+            return ok({"ok": True})
+        finally:
+            conn.close()
+
     return err("Unknown action", 400)
 
 
@@ -91,7 +183,7 @@ def _get_user(user_id: int) -> dict | None:
     try:
         cur = conn.cursor()
         cur.execute(
-            f"SELECT id, name, role, teacher_id, email FROM {SCHEMA}.users WHERE id = {int(user_id)}"
+            f"SELECT id, name, role, teacher_id, email FROM {SCHEMA}.users WHERE id = {int(user_id)} AND active = TRUE"
         )
         row = cur.fetchone()
         if not row:
