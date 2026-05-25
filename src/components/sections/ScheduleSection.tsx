@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { User } from "@/pages/Index";
 import Icon from "@/components/ui/icon";
 
-const GROUPS_URL = "https://functions.poehali.dev/f21c4595-d3bb-4863-97d4-ad0de6afa1bb";
+const GROUPS_URL   = "https://functions.poehali.dev/f21c4595-d3bb-4863-97d4-ad0de6afa1bb";
+const SCHEDULE_URL = "https://functions.poehali.dev/62ddff56-f7de-47c1-91a7-afe2832ba21d";
 
 const WEEKDAYS_SHORT = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 const WEEKDAYS_FULL  = ["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"];
@@ -14,14 +15,16 @@ type ViewMode = "month" | "week" | "day";
 interface Group { id: number; name: string; teacher_id: number; teacher_name: string; }
 
 interface Lesson {
-  id: string;
-  date: string;   // YYYY-MM-DD
-  time: string;   // HH:MM
+  id: number | string;
+  date: string | null;  // YYYY-MM-DD
+  time: string;         // HH:MM
   groupId: number;
+  group_name?: string;
+  teacher_name?: string;
   room: string;
   duration: string;
-  recurring?: boolean; // повторяется каждую неделю
-  weekday?: number;    // 0=Пн для повторяющихся
+  recurring: boolean;
+  weekday?: number | null; // 0=Пн
 }
 
 // Цвета групп
@@ -88,19 +91,41 @@ export default function ScheduleSection({ user }: { user: User }) {
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
 
   const canEdit = user.role === "teacher" || user.role === "admin";
-  const myGroupIds = useMemo(() => new Set(groups.map((g) => g.id)), [groups]);
 
-  useEffect(() => {
-    fetch(GROUPS_URL, {
+  const apiSchedule = (action: string, payload?: object) =>
+    fetch(SCHEDULE_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "my_groups", user_id: Number(user.id), role: user.role }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        const g: Group[] = data.groups ?? [];
+      body: JSON.stringify({ action, ...payload }),
+    }).then((r) => r.json());
+
+  const mapLesson = (l: Record<string, unknown>): Lesson => ({
+    id: l.id as number,
+    date: (l.date as string) ?? null,
+    time: (l.time as string) ?? "",
+    groupId: l.group_id as number,
+    group_name: l.group_name as string,
+    teacher_name: l.teacher_name as string,
+    room: (l.room as string) ?? "",
+    duration: (l.duration as string) ?? "60 мин",
+    recurring: (l.recurring as boolean) ?? false,
+    weekday: l.weekday as number ?? null,
+  });
+
+  useEffect(() => {
+    Promise.all([
+      fetch(GROUPS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "my_groups", user_id: Number(user.id), role: user.role }),
+      }).then((r) => r.json()),
+      apiSchedule("list", { user_id: Number(user.id), role: user.role }),
+    ])
+      .then(([gData, sData]) => {
+        const g: Group[] = gData.groups ?? [];
         setGroups(g);
         if (g.length > 0) setForm((f) => ({ ...f, groupId: g[0].id }));
+        setLessons((sData.lessons ?? []).map(mapLesson));
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -115,35 +140,33 @@ export default function ScheduleSection({ user }: { user: User }) {
     return GROUP_DOTS[idx % GROUP_DOTS.length] ?? GROUP_DOTS[0];
   };
 
-  // Получить уроки для конкретной даты
   const lessonsForDate = (date: Date): Lesson[] => {
     const ds = isoDate(date);
     const wd = (date.getDay() + 6) % 7; // 0=Пн
     return lessons.filter((l) => {
-      if (!myGroupIds.has(l.groupId)) return false;
       if (l.recurring) return l.weekday === wd;
       return l.date === ds;
     }).sort((a, b) => a.time.localeCompare(b.time));
   };
 
-  const addLesson = () => {
+  const addLesson = async () => {
     if (!form.groupId) return;
     const wd = (new Date(form.date).getDay() + 6) % 7;
-    const newLesson: Lesson = {
-      id: `l${Date.now()}`,
-      date: form.date,
+    const data = await apiSchedule("create", {
+      group_id: form.groupId,
+      date: form.recurring ? null : form.date,
       time: form.time,
-      groupId: form.groupId as number,
-      room: form.room,
       duration: form.duration,
+      room: form.room,
       recurring: form.recurring,
-      weekday: form.recurring ? wd : undefined,
-    };
-    setLessons((p) => [...p, newLesson]);
+      weekday: form.recurring ? wd : null,
+    });
+    if (data.lesson) setLessons((p) => [...p, mapLesson(data.lesson)]);
     setShowForm(false);
   };
 
-  const deleteLesson = (id: string) => {
+  const deleteLesson = async (id: number | string) => {
+    await apiSchedule("delete", { lesson_id: id });
     setLessons((p) => p.filter((l) => l.id !== id));
     setSelectedLesson(null);
   };

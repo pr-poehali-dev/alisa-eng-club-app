@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "list — admin видит все",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "list", "user_id": 9, "role": "admin"},
+      "expectedStatus": 200,
+      "bodyMatcher": "partial",
+      "expectedBody": {"lessons": []}
+    },
+    {
+      "name": "create — новый урок",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "create",
+        "group_id": 3,
+        "date": "2026-06-02",
+        "time": "10:00",
+        "duration": "60 мин",
+        "room": "Zoom",
+        "recurring": false
+      },
+      "expectedStatus": 200,
+      "bodyMatcher": "partial",
+      "expectedBody": {"lesson": {"group_id": 3}}
+    }
+  ]
+}
